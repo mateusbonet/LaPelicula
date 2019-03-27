@@ -49,19 +49,26 @@ export default class SobreScreen extends Component{
 
   render(){
     return(
-      <View>
-        <Text>Sobre</Text>
-          <LPButton titulo="Voltar" onPress={() => {this.voltar()}}/>
-          <LPButton titulo="Tela Principal" onPress={() => {this.telaPrincipal()}}/>
+      <View style={styles.container}>
+        <Text style={styles.text}>Sobre</Text>
+        <Text style={styles.text}>La Pelicula Filmes</Text>
+        <Text style={styles.text}>Versão: 1.0</Text>
+        <Text style={styles.text}>Desenvolvimento por Mateus Bonet - UNOESC</Text>
       </View>
     );
   }
 }
 
 const styles = StyleSheet.create({
-  cntainer:{
+  container:{
     flex:1,
     justifyContent: 'center',
-    alignItems: 'center'
+    alignItems: 'center',
+    backgroundColor: '#FFFFFF'
+  },
+  text:{
+    color: '#808080',
+    fontWeight: 'bold',
+    textAlign: 'center'
   }
 })

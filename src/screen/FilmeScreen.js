@@ -39,6 +39,7 @@ export default class FilmeScreen extends Component {
   constructor(props) {
     super(props);
     this.state = {
+      codigo: null,
       descricao: '',
       uri: null
     };
@@ -53,7 +54,6 @@ export default class FilmeScreen extends Component {
   }
 
   salvar() {
-
     //Insert no banco
     db.transaction(tx => {
       tx.executeSql('INSERT INTO filme(descricao, imagem) VALUES(?,?)', [this.state.descricao, this.state.uri])
@@ -62,7 +62,21 @@ export default class FilmeScreen extends Component {
     this.props.navigation.navigate('Home');
   }
 
+  buscarFilmeEdicao(codigo){
+    db.transaction(tx => {
+      tx.executeSql('SELECT * FROM filme WHERE codigo = ' + codigo, [],
+        (tx, res) => {
+          //tratar o resultado da consulta
+          this.setState({ codigo });
+          this.setState({ descricao: res.rows.item(0).descricao });
+          this.setState({ uri: res.rows.item(0).imagem });
+          
+        });
+    });
+  }
+
   render() {
+    
     return (
       <View style={styles.container}>
         <View style={styles.areaFoto}>

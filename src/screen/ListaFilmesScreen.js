@@ -1,7 +1,8 @@
 import React, { Component } from 'react';
-import { View, Text, StyleSheet, Image, TouchableHighlight, ImageBackground, TouchableOpacity, Picker } from 'react-native';
+import { View, Text, StyleSheet, Image, TextInput, ImageBackground, TouchableOpacity, Picker, Modal, Button } from 'react-native';
 import { openDatabase } from 'react-native-sqlite-storage';
 import { FlatList } from 'react-native-gesture-handler';
+import { LPButton } from '../component/LPButton';
 var db = openDatabase({ name: 'lapelicula.db' });
 
 //Component de Filmes
@@ -10,7 +11,7 @@ class Filmes extends Component {
   render() {
     return (
       <View style={styles.container}>
-        <TouchableHighlight onPress={() => alert("Filme: " + this.props.data.descricao)} underlayColor="blue" >
+        <TouchableOpacity onPress={this.props.onClick}>
           <ImageBackground resizeMode="cover" source={{ uri: this.props.data.imagem }} style={{ height: 150 }}>
             <View style={styles.viewFilme}>
               <Text style={{ fontSize: 23, color: 'black', fontWeight: 'bold' }}>{this.props.data.descricao}</Text>
@@ -24,7 +25,7 @@ class Filmes extends Component {
               </View>
             </View>
           </ImageBackground>
-        </TouchableHighlight>
+        </TouchableOpacity>
       </View>
     );
   }
@@ -35,14 +36,21 @@ export default class ListaFilmesScreen extends Component {
   constructor(props) {
     super(props);
     this.state = {
+      codigo: null,
+      descricao: '',
+      uri: null,
+      modalVisible: false,
       filmes: [],
       orderBy: 'descricao'
     };
+
+    this.abrirCamera = this.abrirCamera.bind(this);
+    this.editar = this.editar.bind(this);
   }
 
   buscarFilmes(ordenacao) {
     // buscar os dados dos filmes na base
-    let query = (ordenacao == ''|| ordenacao == null || ordenacao == undefined) ? 'SELECT * FROM filme ORDER BY descricao' : 'SELECT * FROM filme ORDER BY ' + ordenacao;
+    let query = (ordenacao == '' || ordenacao == null || ordenacao == undefined) ? 'SELECT * FROM filme ORDER BY descricao' : 'SELECT * FROM filme ORDER BY ' + ordenacao;
 
     db.transaction(tx => {
       tx.executeSql(query, [],
@@ -72,9 +80,44 @@ export default class ListaFilmesScreen extends Component {
     this.buscarFilmes();
   }
 
-  buscarFilmesOrdenacao(ordenacao){
-    this.setState({orderBy: ordenacao});
+  openModal(codigo) {
+    db.transaction(tx => {
+      tx.executeSql('SELECT * FROM filme WHERE codigo = ' + codigo, [],
+        (tx, res) => {
+
+          this.setState({ modalVisible: true });
+
+          if (res.rows.item(0) != undefined || res.rows.item(0).length > 0) {
+            this.setState({ codigo: codigo });
+            this.setState({ descricao: res.rows.item(0).descricao });
+            this.setState({ uri: res.rows.item(0).imagem });
+          }
+        });
+    });
+
+  }
+  closeModal() {
+    this.setState({ modalVisible: false });
+  }
+
+  buscarFilmesOrdenacao(ordenacao) {
+    this.setState({ orderBy: ordenacao });
     this.buscarFilmes(ordenacao);
+  }
+
+  abrirCamera() {
+    this.props.navigation.navigate('Camera');
+  }
+
+  editar() {
+    
+    //Atualiza as informações do filme
+    db.transaction(tx => {
+      tx.executeSql('UPDATE filme SET descricao = ?, imagem = ? WHERE codigo = ?', [this.state.descricao, this.state.imagem, this.state.codigo]);
+    })
+
+    this.closeModal();
+    this.buscarFilmes();
   }
 
   // configurando opções de navegação
@@ -103,10 +146,37 @@ export default class ListaFilmesScreen extends Component {
           onValueChange={(itemValue, itemIndex) =>
             this.buscarFilmesOrdenacao(itemValue)
           }>
-          <Picker.Item label="Código" value="codigo"/>
-          <Picker.Item label="Descrição" value="descricao"/>
+          <Picker.Item label="Código" value="codigo" />
+          <Picker.Item label="Descrição" value="descricao" />
         </Picker>
-        <FlatList data={this.state.filmes} keyExtractor={item => item.codigo.toString()} renderItem={({ item }) => <Filmes onPress={() => this.excluirFilme(item.codigo)} data={item}></Filmes>}></FlatList>
+        <FlatList data={this.state.filmes} keyExtractor={item => item.codigo.toString()} renderItem={({ item }) => <Filmes onClick={() => this.openModal(item.codigo)} onPress={() => this.excluirFilme(item.codigo)} data={item}></Filmes>}></FlatList>
+        <Modal visible={this.state.modalVisible} animationType={'slide'} onRequestClose={() => this.closeModal()} style={styles.modal}>
+          <View style={styles.container}>
+            <View style={styles.areaFoto}>
+              <View style={{ justifyContent: 'flex-end', alignItems: 'center' }}>
+                <Image source={{ uri: this.state.uri }} style={{ backgroundColor: 'blue', justifyContent: 'center', alignItems: 'flex-start', width: 150, height: 150, marginBottom: 40 }} />
+              </View>
+              <View style={{ width: 50, heigth: 50 }}>
+                <TouchableOpacity onPress={() => { this.abrirCamera() }}>
+                  <View>
+                    <Image source={require('../img/captura.png')} />
+                  </View>
+                </TouchableOpacity>
+              </View>
+            </View>
+            <View style={styles.areaInput}>
+              <TextInput style={styles.inputText}
+                multiline={true} placeholder='Descrição'
+                onChangeText={(valor) => this.setState({ descricao: valor })}>{this.state.descricao}</TextInput>
+            </View>
+            <View style={styles.areaBotao}>
+              <View style={{ flex: 1 }}>
+                <LPButton titulo='Salvar' onPress={() => this.editar()} />
+                <LPButton titulo='Cancelar' onPress={() => this.closeModal()} />
+              </View>
+            </View>
+          </View >
+        </Modal>
       </View>
     );
   }
@@ -133,10 +203,32 @@ const styles = StyleSheet.create({
     paddingLeft: 10,
     paddingBottom: 10
   },
-  text:{
+  text: {
     color: '#808080',
     fontWeight: 'bold',
     fontSize: 18,
     padding: 5
+  },
+  inputText: {
+    fontSize: 15,
+    borderWidth: 1,
+    borderColor: 'gray'
+  },
+  areaBotao: {
+    flexDirection: 'row',
+    width: '100%',
+    justifyContent: 'center'
+  },
+  areaInput: {
+    width: '98%'
+  },
+  areaFoto: {
+    justifyContent: 'center',
+    alignItems: 'center'
+  },
+  modal: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center'
   }
 });

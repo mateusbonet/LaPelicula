@@ -81,7 +81,7 @@ export default class FilmeScreen extends Component {
       <View style={styles.container}>
         <View style={styles.areaFoto}>
           <View style={{ justifyContent: 'flex-end', alignItems: 'center' }}>
-            <Image source={{ uri: this.state.uri }} style={{ backgroundColor: 'blue', justifyContent: 'center', alignItems: 'flex-start', width: 150, height: 150, marginBottom: 40 }} />
+            <Image source={{ uri: this.state.uri }} style={{ backgroundColor: '#808080', justifyContent: 'center', alignItems: 'flex-start', width: 150, height: 150, marginBottom: 40 }} />
           </View>
           <View style={{ width: 50, heigth: 50 }}>
             <TouchableOpacity onPress={() => { this.abrirCamera() }}>
@@ -115,7 +115,7 @@ const styles = StyleSheet.create({
     flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
-    backgroundColor: '#F5FCFF',
+    backgroundColor: '#F4F4F4',
   },
   inputText: {
     fontSize: 15,

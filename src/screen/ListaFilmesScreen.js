@@ -150,11 +150,12 @@ export default class ListaFilmesScreen extends Component {
           <Picker.Item label="Descrição" value="descricao" />
         </Picker>
         <FlatList data={this.state.filmes} keyExtractor={item => item.codigo.toString()} renderItem={({ item }) => <Filmes onClick={() => this.openModal(item.codigo)} onPress={() => this.excluirFilme(item.codigo)} data={item}></Filmes>}></FlatList>
-        <Modal visible={this.state.modalVisible} animationType={'slide'} onRequestClose={() => this.closeModal()} style={styles.modal}>
-          <View style={styles.container}>
+        <Modal visible={this.state.modalVisible} animationType={'slide'} onRequestClose={() => this.closeModal()}>
+        <View style={styles.containerModal}>
+          <View style={styles.modal}>
             <View style={styles.areaFoto}>
               <View style={{ justifyContent: 'flex-end', alignItems: 'center' }}>
-                <Image source={{ uri: this.state.uri }} style={{ backgroundColor: 'blue', justifyContent: 'center', alignItems: 'flex-start', width: 150, height: 150, marginBottom: 40 }} />
+                <Image source={{ uri: this.state.uri }} style={{ backgroundColor: '#808080', justifyContent: 'center', alignItems: 'flex-start', width: 150, height: 150, marginBottom: 40 }} />
               </View>
               <View style={{ width: 50, heigth: 50 }}>
                 <TouchableOpacity onPress={() => { this.abrirCamera() }}>
@@ -176,6 +177,7 @@ export default class ListaFilmesScreen extends Component {
               </View>
             </View>
           </View >
+          </View>
         </Modal>
       </View>
     );
@@ -236,6 +238,12 @@ const styles = StyleSheet.create({
   modal: {
     flex: 1,
     justifyContent: 'center',
-    alignItems: 'center'
+    alignItems: 'center',
+  },
+  containerModal: {
+    flex: 1,
+    flexDirection: 'row',
+    width: '100%',
+    justifyContent: 'center'
   }
 });

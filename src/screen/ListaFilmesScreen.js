@@ -1,5 +1,5 @@
 import React, { Component } from 'react';
-import { View, Text, StyleSheet, Image, TextInput, ImageBackground, TouchableOpacity, Picker, Modal, Button } from 'react-native';
+import { View, Text, StyleSheet, Image, TextInput, ImageBackground, TouchableOpacity, Picker, Modal } from 'react-native';
 import { openDatabase } from 'react-native-sqlite-storage';
 import { FlatList } from 'react-native-gesture-handler';
 import { LPButton } from '../component/LPButton';
@@ -106,14 +106,14 @@ export default class ListaFilmesScreen extends Component {
   }
 
   abrirCamera() {
-    this.props.navigation.navigate('Camera');
+    this.props.navigation.navigate('Camera', { codigo : this.state.codigo, uri: this.state.uri});
   }
 
   editar() {
     
     //Atualiza as informações do filme
     db.transaction(tx => {
-      tx.executeSql('UPDATE filme SET descricao = ?, imagem = ? WHERE codigo = ?', [this.state.descricao, this.state.imagem, this.state.codigo]);
+      tx.executeSql('UPDATE filme SET descricao = ?, imagem = ? WHERE codigo = ?', [this.state.descricao, this.state.uri, this.state.codigo]);
     })
 
     this.closeModal();
@@ -187,6 +187,13 @@ export default class ListaFilmesScreen extends Component {
       // buscar os dados dos filmes na base
       this.buscarFilmes();
     });
+
+    if(navigation.getParam('codigo', null) != null){
+      
+      this.setState({ uri: navigation.getParam('imguri', null)});
+      this.setState({ codigo: navigation.getParam('codigo', null)});
+      this.setState({ modalVisible: true });
+    }
   }
 
 }

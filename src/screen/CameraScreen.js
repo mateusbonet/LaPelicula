@@ -11,7 +11,8 @@ export default class CameraScreen extends Component {
   constructor(props) {
     super(props);
     this.state = {
-      uri: null
+      uri: null,
+      codigo: null
     }
 
     this.capturarFoto = this.capturarFoto.bind(this);
@@ -26,6 +27,12 @@ export default class CameraScreen extends Component {
       this.setState(state);
     }
   }
+  componentDidMount() {
+    const { navigation } = this.props;
+    this.setState({ action: navigation.getParam('codigo', 'Filme') == 'Filme' ? 'Filme' : 'Home' });
+    this.setState({ codigo: navigation.getParam('codigo', 'null')});
+    this.setState({ uri: navigation.getParam('uri', 'null')});
+  }
 
   render() {
     return (
@@ -39,8 +46,8 @@ export default class CameraScreen extends Component {
         <View style={{ flex: 1.5, justifyContent: 'center', alignItems:'center'}}>
           <Image style={{ borderWidth: 1, borderColor: 'black', height: 150, width: 150 }} source={{ uri: this.state.uri }}></Image>
           <View style={{ flexDirection: 'row' }}>
-            <Button title='OK' onPress={() => this.props.navigation.navigate('Filme', { imguri: this.state.uri })}></Button>
-            <Button title='Cancelar' onPress={() => this.props.navigation.navigate('Filme')}></Button>
+            <Button title='OK' onPress={() => this.props.navigation.navigate(this.state.action, { imguri: this.state.uri, codigo: this.state.codigo })}></Button>
+            <Button title='Cancelar' onPress={() => this.props.navigation.navigate(this.state.action, { codigo: this.state.codigo, imguri: this.state.uri })}></Button>
           </View>
         </View>
       </View>

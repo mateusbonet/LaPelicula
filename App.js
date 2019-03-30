@@ -6,6 +6,7 @@ import ListaFilmesScreen from './src/screen/ListaFilmesScreen';
 import FilmeScreen from './src/screen/FilmeScreen';
 import SobreScreen from './src/screen/SobreScreen';
 import CameraScreen from './src/screen/CameraScreen';
+import ListaFilmesApiScreen from './src/screen/ListaFilmesApiScreen'
 import {openDatabase} from 'react-native-sqlite-storage';
 
 //Criando um objeto para representar o banco de dados
@@ -70,6 +71,7 @@ const styles = StyleSheet.create({
 const AppTab = createBottomTabNavigator({
   Home: { screen: ListaFilmesScreen },
   Filme: { screen: FilmeScreen },
+  Api: { screen: ListaFilmesApiScreen },
   Sobre: { screen: SobreScreen }
 }, {
     tabBarOptions: {

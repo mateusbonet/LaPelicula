@@ -213,7 +213,7 @@ const styles = StyleSheet.create({
     paddingBottom: 10
   },
   text: {
-    color: '#808080',
+    color: '#000000',
     fontWeight: 'bold',
     fontSize: 18,
     padding: 5
